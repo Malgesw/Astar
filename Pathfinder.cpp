@@ -2,24 +2,24 @@
 
 using namespace std::placeholders;
 
-bool Pathfinder::Vec2i::operator == (const Vec2i& coordinates_) const
+bool Pathfinder::Vec2i::operator == (const Vec2i& coordinates) const
 {
-    return (x == coordinates_.x && y == coordinates_.y);
+    return (x == coordinates.x && y == coordinates.y);
 }
 
-Pathfinder::Vec2i operator + (const Pathfinder::Vec2i& left_, const Pathfinder::Vec2i& right_)
+Pathfinder::Vec2i operator + (const Pathfinder::Vec2i& left, const Pathfinder::Vec2i& right)
 {
-    return{ left_.x + right_.x, left_.y + right_.y };
+    return{ left.x + right.x, left.y + right.y };
 }
 
-Pathfinder::Node::Node(Vec2i coordinates_, Node *parent_)
+Pathfinder::Node::Node(Vec2i coordinates, Node *parent)
 {
-    parent = parent_;
-    coordinates = coordinates_;
+    this->parent = parent;
+    this->coordinates = coordinates;
     G = H = 0;
 }
 
-Pathfinder::uint Pathfinder::Node::getScore() const
+unsigned int Pathfinder::Node::getScore() const
 {
     return G + H;
 }
@@ -29,36 +29,61 @@ Pathfinder::Generator::Generator()
 
     setDiagonalMovement(false);
     setHeuristic(&Heuristic::manhattan);
+
     direction = {
             { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 },
             { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 }
     };
+
+    found = false;
+    worldSize = {1, 1};
+    directions = 4;
 }
 
-void Pathfinder::Generator::setWorldSize(Vec2i worldSize_)
+void Pathfinder::Generator::setWorldSize(Vec2i size)
 {
-    worldSize = worldSize_;
+    worldSize = size;
 
 }
 
-void Pathfinder::Generator::setDiagonalMovement(bool enable_)
+void Pathfinder::Generator::setDiagonalMovement(bool enable)
 {
-    directions = (enable_ ? 8 : 4);
+    directions = (enable ? 8 : 4);
 }
 
-void Pathfinder::Generator::setHeuristic(HeuristicFunction heuristic_)
+void Pathfinder::Generator::setHeuristic(const HeuristicFunction &heur)
 {
-    heuristic = std::bind(heuristic_, _1, _2);
+    this->heuristic = std::bind(heur, _1, _2);
 }
 
-void Pathfinder::Generator::addCollision(Vec2i coordinates_)
+void Pathfinder::Generator::addCollision(Vec2i coordinates, sf::Vector2f size)
 {
-    walls.push_back(coordinates_);
+    walls.push_back(coordinates);
+    sf::RectangleShape shape;
+    shape.setFillColor(sf::Color::Green);
+    shape.setSize(size);
+    shape.setPosition(sf::Vector2f(size.x*(float)coordinates.x, size.y*(float)coordinates.y));
+    collisionTiles.push_back(shape);
 }
 
-void Pathfinder::Generator::removeCollision(Vec2i coordinates_)
+void Pathfinder::Generator::addNode(Pathfinder::Vec2i coordinates, sf::Vector2f size) {
+
+    sf::RectangleShape node;
+    node.setSize(size);
+    node.setPosition(sf::Vector2f((float)coordinates.x*size.x, (float)coordinates.y*size.y));
+
+    if(found)
+        node.setFillColor(sf::Color::Yellow);
+    else
+        node.setFillColor(sf::Color::Red);
+
+    nodes.push_back(node);
+
+}
+
+void Pathfinder::Generator::removeCollision(Vec2i coordinates)
 {
-    auto it = std::find(walls.begin(), walls.end(), coordinates_);
+    auto it = std::find(walls.begin(), walls.end(), coordinates);
     if (it != walls.end()) {
         walls.erase(it);
     }
@@ -69,13 +94,13 @@ void Pathfinder::Generator::clearCollisions()
     walls.clear();
 }
 
-Pathfinder::CoordinateList Pathfinder::Generator::findPath(Vec2i source_, Vec2i target_)
+Pathfinder::CoordinateList Pathfinder::Generator::findPath(Vec2i source, Vec2i target)
 {
     Node *current = nullptr;
     NodeSet openSet, closedSet;
     openSet.reserve(100);
     closedSet.reserve(100);
-    openSet.push_back(new Node(source_));
+    openSet.push_back(new Node(source));
 
     while (!openSet.empty()) {
         auto current_it = openSet.begin();
@@ -89,27 +114,27 @@ Pathfinder::CoordinateList Pathfinder::Generator::findPath(Vec2i source_, Vec2i 
             }
         }
 
-        if (current->coordinates == target_) {
+        if (current->coordinates == target) {
             break;
         }
 
         closedSet.push_back(current);
         openSet.erase(current_it);
 
-        for (uint i = 0; i < directions; ++i) {
+        for (unsigned int i = 0; i < directions; ++i) {
             Vec2i newCoordinates(current->coordinates + direction[i]);
             if (detectCollision(newCoordinates) ||
                 findNodeOnList(closedSet, newCoordinates)) {
                 continue;
             }
 
-            uint totalCost = current->G + ((i < 4) ? 10 : 14);
+            unsigned int totalCost = current->G + ((i < 4) ? 10 : 14);
 
             Node *successor = findNodeOnList(openSet, newCoordinates);
             if (successor == nullptr) {
                 successor = new Node(newCoordinates, current);
                 successor->G = totalCost;
-                successor->H = heuristic(successor->coordinates, target_);
+                successor->H = heuristic(successor->coordinates, target);
                 openSet.push_back(successor);
             }
             else if (totalCost < successor->G) {
@@ -131,54 +156,74 @@ Pathfinder::CoordinateList Pathfinder::Generator::findPath(Vec2i source_, Vec2i 
     return path;
 }
 
-Pathfinder::Node* Pathfinder::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates_)
+Pathfinder::Node* Pathfinder::Generator::findNodeOnList(NodeSet& nodeSet, Vec2i coordinates)
 {
-    for (auto node : nodes_) {
-        if (node->coordinates == coordinates_) {
+    for (auto node : nodeSet) {
+        if (node->coordinates == coordinates) {
             return node;
         }
     }
     return nullptr;
 }
 
-void Pathfinder::Generator::releaseNodes(NodeSet& nodes_)
+void Pathfinder::Generator::releaseNodes(NodeSet& nodeSet)
 {
-    for (auto it = nodes_.begin(); it != nodes_.end();) {
+    for (auto it = nodeSet.begin(); it != nodeSet.end();) {
         delete *it;
-        it = nodes_.erase(it);
+        it = nodeSet.erase(it);
     }
 }
 
-bool Pathfinder::Generator::detectCollision(Vec2i coordinates_)
+bool Pathfinder::Generator::detectCollision(Vec2i coordinates)
 {
-    if (coordinates_.x < 0 || coordinates_.x >= worldSize.x ||
-        coordinates_.y < 0 || coordinates_.y >= worldSize.y ||
-        std::find(walls.begin(), walls.end(), coordinates_) != walls.end()) {
+    if (coordinates.x < 0 || coordinates.x >= worldSize.x ||
+        coordinates.y < 0 || coordinates.y >= worldSize.y ||
+        std::find(walls.begin(), walls.end(), coordinates) != walls.end()) {
         return true;
     }
     return false;
 }
 
-Pathfinder::Vec2i Pathfinder::Heuristic::getDelta(Vec2i source_, Vec2i target_)
-{
-    return{ abs(source_.x - target_.x),  abs(source_.y - target_.y) };
+void Pathfinder::Generator::render(sf::RenderTarget *target) {
+
+    for(auto &c : collisionTiles)
+        target->draw(c);
+
+    for(auto &n : nodes)
+        target->draw(n);
+
 }
 
-Pathfinder::uint Pathfinder::Heuristic::manhattan(Vec2i source_, Vec2i target_)
-{
-    auto delta = std::move(getDelta(source_, target_));
-    return static_cast<uint>(10 * (delta.x + delta.y));
+void Pathfinder::Generator::checkSourceTarget(bool isSearched) {
+
+   if(isSearched){
+       found = true;
+   }
+   else
+       found = false;
+
 }
 
-Pathfinder::uint Pathfinder::Heuristic::euclidean(Vec2i source_, Vec2i target_)
+Pathfinder::Vec2i Pathfinder::Heuristic::getDelta(Vec2i source, Vec2i target)
 {
-    auto delta = std::move(getDelta(source_, target_));
-    return static_cast<uint>(10 * sqrt(pow(delta.x, 2) + pow(delta.y, 2)));
+    return{ abs(source.x - target.x),  abs(source.y - target.y) };
 }
 
-Pathfinder::uint Pathfinder::Heuristic::octagonal(Vec2i source_, Vec2i target_)
+unsigned int Pathfinder::Heuristic::manhattan(Vec2i source, Vec2i target)
 {
-    auto delta = std::move(getDelta(source_, target_));
+    auto delta = getDelta(source, target);
+    return static_cast<unsigned int>(10 * (delta.x + delta.y));
+}
+
+unsigned int Pathfinder::Heuristic::euclidean(Vec2i source, Vec2i target)
+{
+    auto delta = getDelta(source, target);
+    return static_cast<unsigned int>(10 * sqrt(pow(delta.x, 2) + pow(delta.y, 2)));
+}
+
+unsigned int Pathfinder::Heuristic::octagonal(Vec2i source, Vec2i target)
+{
+    auto delta = getDelta(source, target);
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);
 }
 
