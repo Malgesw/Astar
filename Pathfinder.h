@@ -40,7 +40,7 @@ namespace Pathfinder
 
     public:
         Generator();
-        void setWorldSize(Vec2i size);
+        void setWorldSize(sf::Vector2f size);
         void setDiagonalMovement(bool enable);
         void setHeuristic(const HeuristicFunction &heur);
         CoordinateList findPath(Vec2i source, Vec2i target);
@@ -49,14 +49,14 @@ namespace Pathfinder
         void removeCollision(Vec2i coordinates);
         void clearCollisions();
         void render(sf::RenderTarget *target);
-        void checkSourceTarget(bool isSearched);
+        void findSourceTarget(bool isFound);
 
     private:
         HeuristicFunction heuristic;
         CoordinateList direction, walls;
         std::vector<sf::RectangleShape> collisionTiles;
         std::vector<sf::RectangleShape> nodes;
-        Vec2i worldSize{};
+        sf::Vector2f worldSize;
         unsigned int directions;
         bool found;
     };

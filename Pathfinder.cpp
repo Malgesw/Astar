@@ -40,7 +40,7 @@ Pathfinder::Generator::Generator()
     directions = 4;
 }
 
-void Pathfinder::Generator::setWorldSize(Vec2i size)
+void Pathfinder::Generator::setWorldSize(sf::Vector2f size)
 {
     worldSize = size;
 
@@ -53,7 +53,7 @@ void Pathfinder::Generator::setDiagonalMovement(bool enable)
 
 void Pathfinder::Generator::setHeuristic(const HeuristicFunction &heur)
 {
-    this->heuristic = std::bind(heur, _1, _2);
+    heuristic = std::bind(heur, _1, _2);
 }
 
 void Pathfinder::Generator::addCollision(Vec2i coordinates, sf::Vector2f size)
@@ -194,9 +194,9 @@ void Pathfinder::Generator::render(sf::RenderTarget *target) {
 
 }
 
-void Pathfinder::Generator::checkSourceTarget(bool isSearched) {
+void Pathfinder::Generator::findSourceTarget(bool isFound) {
 
-   if(isSearched){
+   if(isFound){
        found = true;
    }
    else

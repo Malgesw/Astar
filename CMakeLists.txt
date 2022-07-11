@@ -3,7 +3,7 @@ project(Astar)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Astar main.cpp Pathfinder.cpp Pathfinder.h)
+add_executable(Astar main.cpp Pathfinder.cpp Pathfinder.h PathFinderAdapter.cpp PathFinderAdapter.h)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR C:/SFML/lib/cmake/SFML)

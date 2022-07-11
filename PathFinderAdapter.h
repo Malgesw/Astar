@@ -1,0 +1,10 @@
+#ifndef ASTAR_PATHFINDERADAPTER_H
+#define ASTAR_PATHFINDERADAPTER_H
+
+
+class PathFinderAdapter {
+
+};
+
+
+#endif //ASTAR_PATHFINDERADAPTER_H
