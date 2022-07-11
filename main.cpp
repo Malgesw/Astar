@@ -10,12 +10,22 @@ int main() {
 
     generator.setWorldSize(tiles);
     generator.setHeuristic(Pathfinder::Heuristic::euclidean);
-    generator.setDiagonalMovement(true);
+    generator.setDiagonalMovement(false);
 
     sf::RectangleShape wall;
 
     float dimX = (float)window.getSize().x / tiles.x;
     float dimY = (float)window.getSize().y / tiles.y;
+
+    sf::RectangleShape player(sf::Vector2f(dimX, dimY));
+    player.setFillColor(sf::Color::Blue);
+
+    sf::RectangleShape enemy(sf::Vector2f(dimX, dimY));
+    enemy.setFillColor(sf::Color::Red);
+
+    sf::RectangleShape target(sf::Vector2f(dimX, dimY));
+    target.setFillColor(sf::Color::Yellow);
+    target.setPosition(200.f, 200.f);
 
     generator.addCollision({3, 3}, sf::Vector2f(dimX, dimY));
     generator.addCollision({10, 20}, sf::Vector2f(dimX, dimY));
@@ -29,25 +39,34 @@ int main() {
     generator.addCollision({3, 2}, sf::Vector2f(dimX, dimY));
 
     std::cout << "Generate path ... \n";
-    auto path = generator.findPath({0, 0}, {10, 9});
+    //auto path = generator.findPath({0, 0}, {10, 9});
+    auto path = generator.findPath({(int)enemy.getPosition().x/25, (int)enemy.getPosition().y/25},
+                                   {(int)target.getPosition().x/25, (int)target.getPosition().y/25});
+
+    std::cout << (int)target.getPosition().x/25 << " " << (int)target.getPosition().y/25 <<std::endl;
+
 
     for(auto& coordinate : path) {
 
-        sf::RectangleShape node;
         std::cout << coordinate.x << " " << coordinate.y << "\n";
 
-        if(coordinate == path.front() || coordinate == path.back())
+        /*if(coordinate == path.front() || coordinate == path.back())
             generator.findSourceTarget(true);
         else
             generator.findSourceTarget(false);
 
-        generator.addNode(coordinate, sf::Vector2f((float)window.getSize().x/tiles.x, (float)window.getSize().y/tiles.y));
+        generator.addNode(coordinate, sf::Vector2f((float)window.getSize().x/tiles.x, (float)window.getSize().y/tiles.y));<*/
 
     }
 
     sf::Event event{};
+    float dt;
+    sf::Clock clock;
 
     while(window.isOpen()){
+
+        dt = clock.getElapsedTime().asSeconds();
+        clock.restart();
 
         while(window.pollEvent(event)){
 
@@ -59,8 +78,40 @@ int main() {
 
         }
 
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+            player.move(-50.5f*dt, 0.f);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+            player.move(50.5f*dt, 0.f);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::I))
+            player.move(0.f, -50.5f*dt);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+            player.move(0.f, 50.5f*dt);
+
+        if(target.getGlobalBounds().intersects(player.getGlobalBounds())){
+
+            for(auto &p : path) {
+
+                enemy.setPosition(p.x * dimX, p.y * dimY);
+                std::cout << enemy.getPosition().x/25 << " " << enemy.getPosition().y/25 << std::endl;
+
+                if(enemy.getPosition().x >= target.getPosition().x && enemy.getPosition().y >= target.getPosition().y)
+                    enemy.setPosition(target.getPosition());
+
+            }
+
+            if(enemy.getGlobalBounds().intersects(player.getGlobalBounds()))
+                std::cout << "You've taken damage!" << std::endl;
+        }
+
         window.clear(sf::Color::Cyan);
 
+        //generator.render(&window);
+        window.draw(target);
+        window.draw(player);
+        window.draw(enemy);
         generator.render(&window);
 
         window.display();

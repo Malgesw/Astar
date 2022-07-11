@@ -189,8 +189,8 @@ void Pathfinder::Generator::render(sf::RenderTarget *target) {
     for(auto &c : collisionTiles)
         target->draw(c);
 
-    for(auto &n : nodes)
-        target->draw(n);
+    //for(auto &n : nodes)
+      //  target->draw(n);
 
 }
 
