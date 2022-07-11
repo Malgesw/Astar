@@ -43,6 +43,7 @@ int main() {
     auto path = generator.findPath({(int)enemy.getPosition().x/25, (int)enemy.getPosition().y/25},
                                    {(int)target.getPosition().x/25, (int)target.getPosition().y/25});
 
+    std::reverse(path.begin(), path.end());
     std::cout << (int)target.getPosition().x/25 << " " << (int)target.getPosition().y/25 <<std::endl;
 
 
@@ -55,7 +56,7 @@ int main() {
         else
             generator.findSourceTarget(false);
 
-        generator.addNode(coordinate, sf::Vector2f((float)window.getSize().x/tiles.x, (float)window.getSize().y/tiles.y));<*/
+        generator.addNode(coordinate, sf::Vector2f((float)window.getSize().x/tiles.x, (float)window.getSize().y/tiles.y));*/
 
     }
 
@@ -90,21 +91,29 @@ int main() {
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::K))
             player.move(0.f, 50.5f*dt);
 
-        if(target.getGlobalBounds().intersects(player.getGlobalBounds())){
+        sf::Vector2f movement;
+
+        if(target.getGlobalBounds().intersects(player.getGlobalBounds()) && enemy.getPosition() != target.getPosition()){
 
             for(auto &p : path) {
 
-                enemy.setPosition(p.x * dimX, p.y * dimY);
-                std::cout << enemy.getPosition().x/25 << " " << enemy.getPosition().y/25 << std::endl;
+                //movement.x = std::abs(enemy.getPosition().x/25 - p.x) * dimX;
+                //movement.y = std::abs(enemy.getPosition().y/25 - p.y) * dimY;
 
-                if(enemy.getPosition().x >= target.getPosition().x && enemy.getPosition().y >= target.getPosition().y)
+                //enemy.move(movement);
+
+                enemy.setPosition(p.x*25, p.y*25);
+
+                if(enemy.getPosition().x > target.getPosition().x && enemy.getPosition().y > target.getPosition().y)
                     enemy.setPosition(target.getPosition());
 
             }
-
-            if(enemy.getGlobalBounds().intersects(player.getGlobalBounds()))
-                std::cout << "You've taken damage!" << std::endl;
         }
+
+        if(enemy.getGlobalBounds().intersects(player.getGlobalBounds()))
+            std::cout << "You've taken damage!" << std::endl;
+
+
 
         window.clear(sf::Color::Cyan);
 
