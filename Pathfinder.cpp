@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Pathfinder.h"
 
 using namespace std::placeholders;
@@ -6,6 +7,7 @@ bool Pathfinder::Vec2i::operator == (const Vec2i& coordinates) const
 {
     return (x == coordinates.x && y == coordinates.y);
 }
+
 
 Pathfinder::Vec2i operator + (const Pathfinder::Vec2i& left, const Pathfinder::Vec2i& right)
 {
@@ -189,8 +191,12 @@ void Pathfinder::Generator::render(sf::RenderTarget *target) {
     for(auto &c : collisionTiles)
         target->draw(c);
 
-    //for(auto &n : nodes)
-      //  target->draw(n);
+
+    for(auto &n : nodes) {
+        n.setFillColor(sf::Color::White);
+        target->draw(n);
+        std::cout<<"node found"<< std::endl;
+    }
 
 }
 
