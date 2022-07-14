@@ -188,14 +188,15 @@ bool Pathfinder::Generator::detectCollision(Vec2i coordinates)
 
 void Pathfinder::Generator::render(sf::RenderTarget *target) {
 
-    for(auto &c : collisionTiles)
+    for(auto &c : collisionTiles) {
         target->draw(c);
+    }
 
 
     for(auto &n : nodes) {
         n.setFillColor(sf::Color::White);
         target->draw(n);
-        std::cout<<"node found"<< std::endl;
+
     }
 
 }

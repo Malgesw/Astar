@@ -12,9 +12,9 @@ public:
 
     sf::Vector2f getMovement( sf::Vector2f end, sf::Vector2f currentPosition);
 
-
-
-
+    std::vector<Pathfinder::Vec2i> getPath(){
+        return path;
+    }
 
 private:
 

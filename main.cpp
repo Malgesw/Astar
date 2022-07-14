@@ -7,7 +7,7 @@ int main() {
 
 
     sf::RenderWindow window(sf::VideoMode(800.f, 600.f), "Pathfinder");
-    window.setFramerateLimit(60);
+    //window.setFramerateLimit(60);
     sf::Vector2f tiles(25, 25);
 
     float dimX = (float)window.getSize().x / tiles.x;
@@ -33,8 +33,8 @@ int main() {
 
 
     finder.setWorldSize(tiles);
-    finder.setHeuristic(Pathfinder::Heuristic::euclidean);
-    finder.setDiagonalMovement(true);
+    finder.setHeuristic(Pathfinder::Heuristic::manhattan);
+    finder.setDiagonalMovement(false);
 
     sf::RectangleShape wall;
 
@@ -42,15 +42,16 @@ int main() {
 
     sf::RectangleShape player(sf::Vector2f(dimX, dimY));
     player.setFillColor(sf::Color::Blue);
+    player.setPosition(200.f, 200.f);
 
     sf::RectangleShape enemy(sf::Vector2f(dimX, dimY));
     enemy.setFillColor(sf::Color::Red);
 
 
 
-    sf::RectangleShape target(sf::Vector2f(dimX, dimY));
-    target.setFillColor(sf::Color::Yellow);
-    target.setPosition(600.f, 200.f);
+    //sf::RectangleShape target(sf::Vector2f(dimX, dimY));
+    //target.setFillColor(sf::Color::Yellow);
+    //target.setPosition(600.f, 200.f);
 
 
 /*
@@ -112,16 +113,16 @@ int main() {
         }
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::J))
-            player.move(-50.5f*dt, 0.f);
+            player.move(-100.5f*dt, 0.f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::L))
-            player.move(50.5f*dt, 0.f);
+            player.move(100.5f*dt, 0.f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::I))
-            player.move(0.f, -50.5f*dt);
+            player.move(0.f, -100.5f*dt);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::K))
-            player.move(0.f, 50.5f*dt);
+            player.move(0.f, 100.5f*dt);
 
         sf::Vector2f movement;
 
@@ -154,12 +155,12 @@ int main() {
         }
 
 
-        finder.render(&window);
+
         window.clear(sf::Color::Cyan);
 
         //generator.render(&window);
-
-        window.draw(target);
+        finder.render(&window);
+        //window.draw(target);
         window.draw(player);
         window.draw(enemy);
 

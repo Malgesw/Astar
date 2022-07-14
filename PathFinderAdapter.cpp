@@ -30,8 +30,8 @@ sf::Vector2f PathFinderAdapter::getMovement(sf::Vector2f end, sf::Vector2f posit
     sf::Vector2f movement;
     //std::cout<<"target is "<<currentTarget.x<<"  "<<currentTarget.y<<std::endl;
     //std::cout<<"position is " <<currentPosition.x<<"  "<<currentPosition.y<<std::endl;
-    movement.x=((float)currentTarget.x-currentPosition.x)*32*10;
-    movement.y=((float)currentTarget.y-currentPosition.y)*24*10;
+    movement.x=((float)currentTarget.x-currentPosition.x)*32*5;
+    movement.y=((float)currentTarget.y-currentPosition.y)*24*5;
     //std::cout<<"movement is " <<movement.x<<"  "<<movement.y<<std::endl;
     if(movement.x<5.f && movement.y<5.f) {
         updateCurrentTarget();
