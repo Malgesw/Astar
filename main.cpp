@@ -26,7 +26,7 @@ int main() {
 
 
 
-    PathFinderAdapter finder(walls,sf::Vector2f(dimX, dimY),0.5f);
+    PathFinderAdapter finder(walls,sf::Vector2f(dimX, dimY),1.f);
 
 
     Pathfinder::Generator generator;
@@ -149,6 +149,14 @@ int main() {
         */
 
         //}
+        std::vector<Pathfinder::Vec2i> path;
+        std::vector<sf::RectangleShape> drawablePath;
+        path=finder.getPath();
+
+        for (auto &step : path){
+            drawablePath.emplace_back(sf::Vector2f(dimX,dimY));
+        }
+
 
         if(enemy.getGlobalBounds().intersects(player.getGlobalBounds())) {
             //std::cout << "You've taken damage!" << std::endl;

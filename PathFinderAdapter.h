@@ -12,13 +12,14 @@ public:
 
     sf::Vector2f getMovement( sf::Vector2f end, sf::Vector2f currentPosition);
 
-    std::vector<Pathfinder::Vec2i> getPath(){
+    std::vector<Pathfinder::Vec2i>& getPath(){
         return path;
     }
 
 private:
 
-    Pathfinder::Vec2i currentTarget;
+    Pathfinder::Vec2i stepEndPosition;
+    Pathfinder::Vec2i stepStartPosition;
     int currentIndex;
     sf::Vector2f endPosition;
     std::vector<Pathfinder::Vec2i> path;

@@ -26,14 +26,14 @@ sf::Vector2f PathFinderAdapter::getMovement(sf::Vector2f end, sf::Vector2f posit
         updatePath();
         clock.restart();
     }
-    currentTarget=path[currentIndex];
+    stepEndPosition=path[currentIndex];
     sf::Vector2f movement;
-    //std::cout<<"target is "<<currentTarget.x<<"  "<<currentTarget.y<<std::endl;
+    //std::cout<<"target is "<<stepEndPosition.x<<"  "<<stepEndPosition.y<<std::endl;
     //std::cout<<"position is " <<currentPosition.x<<"  "<<currentPosition.y<<std::endl;
-    movement.x=((float)currentTarget.x-currentPosition.x)*32*5;
-    movement.y=((float)currentTarget.y-currentPosition.y)*24*5;
+    movement.x= ((float)stepEndPosition.x - currentPosition.x) * 32 * 2;
+    movement.y= ((float)stepEndPosition.y - currentPosition.y) * 24 * 2;
     //std::cout<<"movement is " <<movement.x<<"  "<<movement.y<<std::endl;
-    if(movement.x<5.f && movement.y<5.f) {
+    if(movement.x<32.f && movement.y<24.f) {
         updateCurrentTarget();
     }
     if (movement.x<500.f && movement.y <500.f) {
@@ -54,9 +54,9 @@ void PathFinderAdapter::updatePath(){
                                                                                            static_cast<int>(endPosition.y)});
     std::reverse(path.begin(),path.end());
 
-
-
-    currentIndex=0;
+    stepStartPosition=path[0];
+    stepEndPosition=path[1];
+    currentIndex=1;
 
 
 }
@@ -71,8 +71,6 @@ void PathFinderAdapter::updateCurrentTarget(){
     else {
         updatePath();
     }
-
-
 
 }
 
