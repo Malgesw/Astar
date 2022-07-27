@@ -13,32 +13,11 @@ int main() {
     float dimX = (float)window.getSize().x / tiles.x;
     float dimY = (float)window.getSize().y / tiles.y;
 
+
     std::vector<sf::Vector2i> walls;
 
     walls={sf::Vector2i (3,3),sf::Vector2i (10,20),sf::Vector2i (4,5),sf::Vector2i (5,4),sf::Vector2i (10,10),
           sf::Vector2i (2,3),sf::Vector2i (20,10),sf::Vector2i (4,15),sf::Vector2i (15,4),sf::Vector2i (3,2),};
-
-
-
-
-
-
-
-
-
-    PathFinderAdapter finder(walls,sf::Vector2f(dimX, dimY),1.f);
-
-
-    Pathfinder::Generator generator;
-
-
-    finder.setWorldSize(tiles);
-    finder.setHeuristic(Pathfinder::Heuristic::manhattan);
-    finder.setDiagonalMovement(false);
-
-    sf::RectangleShape wall;
-
-
 
     sf::RectangleShape player(sf::Vector2f(dimX, dimY));
     player.setFillColor(sf::Color::Blue);
@@ -46,6 +25,18 @@ int main() {
 
     sf::RectangleShape enemy(sf::Vector2f(dimX, dimY));
     enemy.setFillColor(sf::Color::Red);
+
+
+    PathFinderAdapter finder(walls,sf::Vector2f(dimX, dimY),1.f, sf::Vector2f(0.f, 0.f), sf::Vector2f(200.f/32, 200.f/24));
+
+    Pathfinder::Generator generator;
+
+    finder.setWorldSize(tiles);
+    finder.setHeuristic(Pathfinder::Heuristic::manhattan);
+    finder.setDiagonalMovement(false);
+
+    sf::RectangleShape wall;
+
 
 
 
@@ -129,8 +120,13 @@ int main() {
         //if(std::abs(player.getPosition().x-enemy.getPosition().x)<200||std::abs(player.getPosition().y-enemy.getPosition().y)<200){
 
 
-            movement=finder.getMovement(player.getPosition(),enemy.getPosition());
+        movement=finder.getMovement(player.getPosition(),enemy.getPosition());
 
+        //if(enemy.getGlobalBounds().intersects(player.getGlobalBounds()))
+        // movement = sf::Vector2f(0.f, 0.f);
+
+        double norm = sqrt(pow(enemy.getPosition().x - player.getPosition().x, 2) + pow(enemy.getPosition().x - player.getPosition().x, 2));
+        if(norm < 400.f)
             enemy.move(movement*dt);
 
            /* for(auto &p : path) {
@@ -154,13 +150,16 @@ int main() {
         path=finder.getPath();
 
         for (auto &step : path){
-            drawablePath.emplace_back(sf::Vector2f(dimX,dimY));
+            sf::RectangleShape shape;
+            shape.setSize(sf::Vector2f(dimX, dimY));
+            shape.setFillColor(sf::Color::White);
+            shape.setPosition((float)step.x*32, (float)step.y*24);
+            drawablePath.push_back(shape);
         }
 
-
-        if(enemy.getGlobalBounds().intersects(player.getGlobalBounds())) {
+        //if(enemy.getGlobalBounds().intersects(player.getGlobalBounds())) {
             //std::cout << "You've taken damage!" << std::endl;
-        }
+        //}
 
 
 
@@ -169,6 +168,8 @@ int main() {
         //generator.render(&window);
         finder.render(&window);
         //window.draw(target);
+        for(auto &s : drawablePath)
+            window.draw(s);
         window.draw(player);
         window.draw(enemy);
 

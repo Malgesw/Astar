@@ -2,13 +2,14 @@
 #define ASTAR_PATHFINDERADAPTER_H
 
 #include "Pathfinder.h"
+#include <cmath>
 
 
 class PathFinderAdapter: public Pathfinder::Generator{
 
 public:
 
-    PathFinderAdapter( const std::vector<sf::Vector2i> &walls,sf::Vector2f size, float time);
+    PathFinderAdapter( const std::vector<sf::Vector2i> &walls,sf::Vector2f size, float time, sf::Vector2f source, sf::Vector2f target);
 
     sf::Vector2f getMovement( sf::Vector2f end, sf::Vector2f currentPosition);
 
