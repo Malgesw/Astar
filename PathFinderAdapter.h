@@ -19,8 +19,8 @@ public:
 
 private:
 
-    Pathfinder::Vec2i stepEndPosition;
-    Pathfinder::Vec2i stepStartPosition;
+    sf::Vector2f stepEndPosition;
+    sf::Vector2f stepStartPosition;
     int currentIndex;
     sf::Vector2f endPosition;
     std::vector<Pathfinder::Vec2i> path;
@@ -33,6 +33,8 @@ private:
 
     void updatePath();
     void updateCurrentTarget();
+    static sf::Vector2f tilesToPixels(Pathfinder::Vec2i tilePos);
+    static Pathfinder::Vec2i pixelToTiles(sf::Vector2f pixelPos);
 
 
 

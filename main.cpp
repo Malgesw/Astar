@@ -125,8 +125,8 @@ int main() {
         //if(enemy.getGlobalBounds().intersects(player.getGlobalBounds()))
         // movement = sf::Vector2f(0.f, 0.f);
 
-        double norm = sqrt(pow(enemy.getPosition().x - player.getPosition().x, 2) + pow(enemy.getPosition().x - player.getPosition().x, 2));
-        if(norm < 400.f)
+        //double norm = sqrt(pow(enemy.getPosition().x - player.getPosition().x, 2) + pow(enemy.getPosition().x - player.getPosition().x, 2));
+        //if(norm < 400.f)
             enemy.move(movement*dt);
 
            /* for(auto &p : path) {

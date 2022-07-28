@@ -17,8 +17,8 @@ updateTime(time),currentIndex(0), endPosition(target), currentPosition(source) {
 
 sf::Vector2f PathFinderAdapter::getMovement(sf::Vector2f end, sf::Vector2f position){
 
-    endPosition=sf::Vector2f (end.x/32,end.y/24);
-    currentPosition=sf::Vector2f (position.x/32,position.y/24);
+    endPosition=sf::Vector2f (end.x,end.y);
+    currentPosition=sf::Vector2f (position.x,position.y);
 
     if(clock.getElapsedTime().asSeconds()>updateTime){
 
@@ -30,17 +30,17 @@ sf::Vector2f PathFinderAdapter::getMovement(sf::Vector2f end, sf::Vector2f posit
     sf::Vector2f movement;
     //std::cout<<"target is "<<stepEndPosition.x<<"  "<<stepEndPosition.y<<std::endl;
     //std::cout<<"position is " <<currentPosition.x<<"  "<<currentPosition.y<<std::endl;
-    movement.x= ((float)stepEndPosition.x - (float)stepStartPosition.x) * 32;
-    movement.y= ((float)stepEndPosition.y - (float)stepStartPosition.y) * 24;
+    movement.x= stepEndPosition.x - stepStartPosition.x;
+    movement.y= stepEndPosition.y - stepStartPosition.y;
     //std::cout<<"movement is " <<movement.x<<"  "<<movement.y<<std::endl;
-    if(std::abs(currentPosition.x - (float)stepEndPosition.x) < 0.01f && std::abs(currentPosition.y - (float)stepEndPosition.y) < 0.01f) {
+    if(std::abs(currentPosition.x - stepEndPosition.x) < 10.f && std::abs(currentPosition.y - stepEndPosition.y) < 10.f) {
         updateCurrentTarget();
-        stepEndPosition=path[currentIndex];
-        stepStartPosition = path[currentIndex-1];
+        stepEndPosition= tilesToPixels(path[currentIndex]);
+        stepStartPosition = tilesToPixels(path[currentIndex-1]);
         std::cout << "StepStartPosition : " << stepStartPosition.x << ", " << stepStartPosition.y << std::endl;
         std::cout << "StepEndPosition : " << stepEndPosition.x << ", " << stepEndPosition.y << std::endl;
     }
-    if (movement.x<500.f && movement.y <500.f) {
+    if (movement.x<500.f && movement.y <500.f&&path.size()>1&&path.size()<25) {
         return movement;
     }
     else
@@ -54,12 +54,12 @@ void PathFinderAdapter::updatePath(){
     //std::cout<<"current position is "<<currentPosition.x<<"   "<<currentPosition.y<<std::endl;
     //std::cout<<"end position is "<<endPosition.x<<"   "<<endPosition.y<<std::endl;
 
-    path = findPath({static_cast<int>(currentPosition.x), static_cast<int>(currentPosition.y)},{static_cast<int>(endPosition.x),
-                                                                                           static_cast<int>(endPosition.y)});
+    path = findPath({pixelToTiles(currentPosition).x, pixelToTiles(currentPosition).y},{pixelToTiles(endPosition).x,
+                                                                                        pixelToTiles(endPosition).y});
     std::reverse(path.begin(),path.end());
 
-    stepStartPosition=path[0];
-    stepEndPosition=path[1];
+    stepStartPosition= tilesToPixels(path[0]);
+    stepEndPosition= tilesToPixels(path[1]);
     currentIndex=1;
 
 }
@@ -75,5 +75,20 @@ void PathFinderAdapter::updateCurrentTarget(){
         updatePath();
     }
 
+}
+
+sf::Vector2f PathFinderAdapter::tilesToPixels(Pathfinder::Vec2i tilePos) {
+    float x,y;
+    x= static_cast<float>(tilePos.x)*32+16;
+    y= static_cast<float>(tilePos.y)*24+12;
+
+    return {x,y};
+}
+
+Pathfinder::Vec2i PathFinderAdapter::pixelToTiles(sf::Vector2f pixelPos) {
+    int x,y;
+    x=static_cast<int>((pixelPos.x/32.f)+0.5f);
+    y=static_cast<int>((pixelPos.y/24.f)+0.5f);
+    return {x,y};
 }
 
